@@ -1,0 +1,7 @@
+package com.mgr.api.config;
+
+public class SecurityConstant {
+    public static final String GRANT_TYPE_PASSWORD = "password";
+    public static final String GRANT_TYPE_CUSTOM = "custom";
+    public static final String GRANT_TYPE_USER = "user"; // Thêm dòng này
+}
