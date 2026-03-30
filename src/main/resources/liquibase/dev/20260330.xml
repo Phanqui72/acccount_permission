@@ -1,0 +1,70 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Authentication" id="1774866976264-1">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="db_mgr_news"/></not>
+        </preConditions>
+        <createTable tableName="db_mgr_news">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_mgr_newsPK"/>
+            </column>
+            <column name="content" type="LONGTEXT"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="category_id" type="BIGINT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Authentication" id="1774866976264-2">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="db_mgr_user"/></not>
+        </preConditions>
+        <createTable tableName="db_mgr_user">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="db_mgr_userPK"/>
+            </column>
+            <column name="birthday" type="date"/>
+            <column name="gender" type="INT"/>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Authentication" id="1774866976264-3">
+        <preConditions onFail="MARK_RAN">
+            <not><foreignKeyConstraintExists foreignKeyName="FKi8wtaupsxmhi3nnabg8s425g1"/></not>
+        </preConditions>
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="db_mgr_user" constraintName="FKi8wtaupsxmhi3nnabg8s425g1" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_mgr_account" validate="true"/>
+    </changeSet>
+    <changeSet author="Authentication" id="1774866976264-4">
+        <preConditions onFail="MARK_RAN">
+            <not><foreignKeyConstraintExists foreignKeyName="FKm9py68edyi0v1cy4dd7xtqxro"/></not>
+        </preConditions>
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="db_mgr_news" constraintName="FKm9py68edyi0v1cy4dd7xtqxro" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="db_mgr_category" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

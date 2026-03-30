@@ -1,9 +1,11 @@
 package com.mgr.api.form.user;
 
+import com.mgr.api.validation.impl.UserGender;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -26,10 +28,11 @@ public class UpdateUserForm {
     private String avatarPath;
 
     @ApiModelProperty(name = "gender")
+    @UserGender(message = "Gender invalid")
     private Integer gender; // 0: Nữ, 1: Nam, 2: Khác
 
     @ApiModelProperty(name = "birthday")
-    private Date birthday;
+    private LocalDate birthday;
 
     @NotNull(message = "status is required")
     @ApiModelProperty(name = "status", required = true)

@@ -5,6 +5,7 @@ import com.mgr.api.dto.account.AccountDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -17,5 +18,5 @@ public class UserDto extends ABasicAdminDto {
     private Integer gender; // 0: Female, 1: Male, 2: Other
 
     @ApiModelProperty(name = "birthday")
-    private Date birthday;
+    private LocalDate birthday;
 }
