@@ -5,11 +5,8 @@
             <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="db_mgr_categoryPK"/>
             </column>
-
             <column name="name" type="VARCHAR(255)"/>
-
             <column name="description" type="TEXT"/>
-
             <column name="created_by" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -25,7 +22,6 @@
             <column name="status" type="INT">
                 <constraints nullable="false"/>
             </column>
-
         </createTable>
     </changeSet>
 </databaseChangeLog>

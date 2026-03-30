@@ -1,5 +1,6 @@
 package com.mgr.api.service.impl;
 
+import com.mgr.api.config.SecurityConstant;
 import com.mgr.api.constant.MgrConstant;
 import com.mgr.api.jwt.MgrJwt;
 import com.mgr.api.model.Account;
@@ -89,6 +90,14 @@ public class UserServiceImpl implements UserDetailsService {
         if (account.getStatus() != MgrConstant.STATUS_ACTIVE) {
             log.error("User had been locked");
             enabled = false;
+        }
+
+        // IF USER LOGIN BY USER TYPE, USER KIND MUST EQUALS USER_KIND = 2
+        if (SecurityConstant.GRANT_TYPE_USER.equals(grantType)) {
+            if (account.getKind() != MgrConstant.USER_KIND_USER) {
+                log.error("Login grant type 'user' but account kind is not USER");
+                throw new UsernameNotFoundException("Tài khoản không phải là người dùng!");
+            }
         }
 
         Set<GrantedAuthority> grantedAuthorities = getAccountPermission(account);
