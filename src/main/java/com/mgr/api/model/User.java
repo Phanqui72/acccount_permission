@@ -3,7 +3,7 @@ package com.mgr.api.model;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = TablePrefix.PREFIX_TABLE + "user")
@@ -18,6 +18,5 @@ public class User extends Auditable<String> {
 
     private Integer gender; // 0: Nữ, 1: Nam, 2: Khác
 
-    @Temporal(TemporalType.DATE)
-    private Date birthday;
+    private LocalDate birthday;
 }

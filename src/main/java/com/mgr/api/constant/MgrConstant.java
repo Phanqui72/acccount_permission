@@ -7,6 +7,9 @@ public class MgrConstant {
     public static final Integer USER_KIND_ADMIN = 1;
     public static final Integer USER_KIND_USER = 2;
 
+    public static final int GENDER_FEMALE = 0; // Nữ
+    public static final int GENDER_MALE = 1;   // Nam
+    public static final int GENDER_OTHER = 2;  // Khác
 
     public static final Integer STATUS_ACTIVE = 1;
     public static final Integer STATUS_PENDING = 0;
