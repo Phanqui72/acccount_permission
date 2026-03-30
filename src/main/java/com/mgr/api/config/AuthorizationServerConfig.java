@@ -120,8 +120,14 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     }
 
     private TokenGranter tokenGranter(final AuthorizationServerEndpointsConfigurer endpoints) {
-        List<TokenGranter> granters = new ArrayList<TokenGranter>(Arrays.asList(endpoints.getTokenGranter()));
+        List<TokenGranter> granters = new ArrayList<>(Arrays.asList(endpoints.getTokenGranter()));
+
+        // Đăng ký cho kiểu "custom"
         granters.add(new CustomTokenGranter(authenticationManager, endpoints.getTokenServices(), endpoints.getClientDetailsService(), endpoints.getOAuth2RequestFactory(), SecurityConstant.GRANT_TYPE_CUSTOM, userService));
+
+        // ĐĂNG KÝ THÊM CHO KIỂU "user"
+        granters.add(new CustomTokenGranter(authenticationManager, endpoints.getTokenServices(), endpoints.getClientDetailsService(), endpoints.getOAuth2RequestFactory(), SecurityConstant.GRANT_TYPE_USER, userService));
+
         return new CompositeTokenGranter(granters);
     }
 
