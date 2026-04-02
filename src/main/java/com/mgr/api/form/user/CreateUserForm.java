@@ -39,7 +39,7 @@ public class CreateUserForm {
     private Integer gender;
 
     @ApiModelProperty(value = "Ngày sinh (định dạng yyyy-MM-dd)", example = "1995-05-20")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") // Thêm dòng này
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") // Thêm dòng này
     private LocalDate birthday;
 
     @NotNull(message = "groupId is required")

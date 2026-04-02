@@ -5,6 +5,9 @@ import com.mgr.api.constant.MgrConstant;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +46,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
         Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
         builder.serializationInclusion(JsonInclude.Include.NON_NULL);
         builder.serializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+        // Cấu hình format cho java.util.Date (Kiểu cũ)
         builder.dateFormat(new SimpleDateFormat(MgrConstant.DATE_TIME_FORMAT));
-        builder.serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(MgrConstant.DATE_FORMAT)));
-        builder.serializers(new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(MgrConstant.DATE_TIME_FORMAT)));
+
+        // Tạo formatters cho Java 8 Date/Time (LocalDateTime, LocalDate)
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(MgrConstant.DATE_TIME_FORMAT);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(MgrConstant.DATE_FORMAT);
+
+        // 1. Cấu hình Serializers (Chiều đi: Java Object -> JSON String)
+        builder.serializers(new LocalDateSerializer(dateFormatter));
+        builder.serializers(new LocalDateTimeSerializer(dateTimeFormatter));
+
+        // 2. Cấu hình Deserializers (Chiều về: JSON String -> Java Object) - GIÚP FEIGN HẾT LỖI
+        builder.deserializers(new LocalDateDeserializer(dateFormatter));
+        builder.deserializers(new LocalDateTimeDeserializer(dateTimeFormatter));
+
         builder.indentOutput(true);
         converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
         converters.add(new MappingJackson2XmlHttpMessageConverter(builder.createXmlMapper(true).build()));
@@ -71,11 +87,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        // Sử dụng builder để tạo ObjectMapper đồng bộ với cấu hình phía trên
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        builder.modules(new JavaTimeModule()); // Quan trọng để xử lý Java 8 Date
+        builder.dateFormat(new SimpleDateFormat(MgrConstant.DATE_TIME_FORMAT));
+        builder.serializationInclusion(JsonInclude.Include.NON_NULL);
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(MgrConstant.DATE_TIME_FORMAT);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(MgrConstant.DATE_FORMAT);
+
+        builder.serializers(new LocalDateTimeSerializer(dateTimeFormatter));
+        builder.deserializers(new LocalDateTimeDeserializer(dateTimeFormatter));
+        builder.serializers(new LocalDateSerializer(dateFormatter));
+        builder.deserializers(new LocalDateDeserializer(dateFormatter));
+
+        ObjectMapper objectMapper = builder.build();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        SimpleDateFormat format = new SimpleDateFormat(MgrConstant.DATE_TIME_FORMAT);
-        objectMapper.setDateFormat(format);
         return objectMapper;
     }
 }

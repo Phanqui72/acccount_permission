@@ -1,16 +1,20 @@
 package com.mgr.api.controller;
 
+import com.mgr.api.constant.MgrConstant;
 import com.mgr.api.dto.ApiMessageDto;
 import com.mgr.api.dto.ErrorCode;
 import com.mgr.api.dto.ResponseListDto;
 import com.mgr.api.dto.news.NewsDto;
 import com.mgr.api.exception.NotFoundException;
+import com.mgr.api.exception.UnauthorizationException;
 import com.mgr.api.form.news.CreateNewsForm;
 import com.mgr.api.form.news.UpdateNewsForm;
 import com.mgr.api.mapper.NewsMapper;
+import com.mgr.api.model.Account;
 import com.mgr.api.model.Category;
 import com.mgr.api.model.News;
 import com.mgr.api.model.criteria.NewsCriteria;
+import com.mgr.api.repository.AccountRepository;
 import com.mgr.api.repository.CategoryRepository;
 import com.mgr.api.repository.NewsRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +42,8 @@ public class NewsController extends ABasicController {
     private CategoryRepository categoryRepository;
     @Autowired
     private NewsMapper newsMapper;
+    @Autowired
+    private AccountRepository accountRepository;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('NEWS_C')")
@@ -46,8 +52,14 @@ public class NewsController extends ABasicController {
         Category category = categoryRepository.findById(createNewsForm.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
 
+//        find account
+        Account currentAccount = accountRepository.findById(getCurrentUser())
+                .orElseThrow(() -> new NotFoundException("Account not found", ErrorCode.ACCOUNT_ERROR_NOT_FOUND));
+
         News news = newsMapper.fromCreateFormToEntity(createNewsForm);
         news.setCategory(category);
+        news.setAccount(currentAccount); // Gắn user tạo bài
+        news.setStatus(MgrConstant.STATUS_ACTIVE);
 
         return makeSuccessResponse(newsMapper.fromEntityToDto(newsRepository.save(news)), "Create news success");
     }
@@ -59,6 +71,10 @@ public class NewsController extends ABasicController {
         News news = newsRepository.findById(updateNewsForm.getId())
                 .orElseThrow(() -> new NotFoundException("News not found", "ERROR-NEWS-001"));
 
+        // 2. check author, only admin or id of account that can access it -> Cấm
+        if (!isSuperAdmin() && !news.getAccount().getId().equals(getCurrentUser())) {
+            throw new UnauthorizationException("You are not the owner of this news!");
+        }
         Category category = categoryRepository.findById(updateNewsForm.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found", ErrorCode.CATEGORY_ERROR_NOT_FOUND));
 
@@ -88,10 +104,15 @@ public class NewsController extends ABasicController {
     @PreAuthorize("hasRole('NEWS_D')")
     @Transactional
     public ApiMessageDto<Void> delete(@PathVariable("id") Long id) {
-        if (!newsRepository.existsById(id)) {
-            throw new NotFoundException("News not found", "ERROR-NEWS-001");
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("News not found", "ERROR-NEWS-001"));
+
+        // KIỂM TRA QUYỀN SỞ HỮU trước khi xóa
+        if (!isSuperAdmin() && !news.getAccount().getId().equals(getCurrentUser())) {
+            throw new UnauthorizationException("You cannot delete news created by others!");
         }
-        newsRepository.deleteById(id);
+
+        newsRepository.delete(news);
         return makeSuccessResponse("Delete news success");
     }
 }

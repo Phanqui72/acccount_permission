@@ -5,6 +5,7 @@ import com.mgr.api.dto.ErrorCode;
 import com.mgr.api.dto.ResponseListDto;
 import com.mgr.api.dto.category.CategoryDto;
 import com.mgr.api.exception.NotFoundException;
+import com.mgr.api.external.InternalClient;
 import com.mgr.api.form.category.CreateCategoryForm;
 import com.mgr.api.form.category.UpdateCategoryForm;
 import com.mgr.api.mapper.CategoryMapper;
@@ -36,6 +37,7 @@ public class CategoryController extends ABasicController {
     private CategoryRepository categoryRepository;
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired private InternalClient internalClient;
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('CAT_C')")
@@ -77,5 +79,13 @@ public class CategoryController extends ABasicController {
         }
         categoryRepository.deleteById(id);
         return makeSuccessResponse("Delete category success.");
+    }
+
+    @GetMapping("/list-internal")
+    public ApiMessageDto<ResponseListDto<List<CategoryDto>>> listInternal() {
+        // Tự gọi chính mình để demo Feign
+        // Lấy token hiện tại của người đang gọi để truyền vào Feign
+        String token = "Bearer " + getCurrentToken();
+        return internalClient.getCategories(token);
     }
 }
